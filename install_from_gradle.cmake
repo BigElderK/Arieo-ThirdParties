@@ -40,7 +40,6 @@ function(install_gradle)
     message(STATUS "GRADLE_TASK: ${ARGUMENT_GRADLE_TASK}")
     message(STATUS "OUTPUT_FOLDER: ${ARGUMENT_OUTPUT_FOLDER}")
     message(STATUS "WORKING_DIRECTORY: ${ARGUMENT_WORKING_DIRECTORY}")
-    return()
 
     # Check if gradlew.bat exists
     if(NOT EXISTS "${ARGUMENT_WORKING_DIRECTORY}/gradlew.bat")

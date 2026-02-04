@@ -27,7 +27,6 @@ function(export_conan_recipes)
 
     # print arguments and exit for debugging now
     message(STATUS "CONAN_RECIPE_FILES: ${ARGUMENT_CONAN_RECIPE_FILES}")
-    return()
 
     foreach(RECIPE_FILE IN LISTS ARGUMENT_CONAN_RECIPE_FILES)
         get_filename_component(RECIPE_DIR ${RECIPE_FILE} DIRECTORY)
@@ -68,7 +67,6 @@ function(install_conan_file)
     message(STATUS "CONAN_FILE: ${ARGUMENT_CONAN_FILE}")
     message(STATUS "CONAN_HOST_PROFILE_FILE: ${ARGUMENT_CONAN_HOST_PROFILE_FILE}")
     message(STATUS "OUTPUT_FOLDER: ${ARGUMENT_OUTPUT_FOLDER}")
-    return()
 
     execute_process(
         COMMAND conan
@@ -77,7 +75,7 @@ function(install_conan_file)
             --update
             --output-folder ${ARGUMENT_OUTPUT_FOLDER}
             -pr:h=${ARGUMENT_CONAN_HOST_PROFILE_FILE}
-            --build=*
+            --build=missing # change to --build=* to force rebuild of all packages
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
         RESULT_VARIABLE CONAN_RESULT
         ECHO_OUTPUT_VARIABLE    # This shows output in real time
@@ -102,26 +100,26 @@ export_conan_recipes(
 
 install_conan_file(
     CONAN_FILE ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.android.txt
-    CONAN_HOST_PROFILE_FILE $ENV{ARIEO_PACKAGE_BUILDENV_INSTALL_FOLDER}/conan/profiles/host/conan_host_profile.android.armv8.txt
+    CONAN_HOST_PROFILE_FILE $ENV{ARIEO_PACKAGE_BUILDENV_SOURCE_FOLDER}/conan/profiles/host/conan_host_profile.android.armv8.txt
     OUTPUT_FOLDER ${INSTALL_FOLDER}/conan/android/armv8
 )
 
 install_conan_file(
     CONAN_FILE ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.raspberry.txt
-    CONAN_HOST_PROFILE_FILE $ENV{ARIEO_PACKAGE_BUILDENV_INSTALL_FOLDER}/conan/profiles/host/conan_host_profile.raspberry.armv8.txt
+    CONAN_HOST_PROFILE_FILE $ENV{ARIEO_PACKAGE_BUILDENV_SOURCE_FOLDER}/conan/profiles/host/conan_host_profile.raspberry.armv8.txt
     OUTPUT_FOLDER ${INSTALL_FOLDER}/conan/raspberry/armv8
 )
 
 install_conan_file(
     CONAN_FILE ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.ubuntu.txt
-    CONAN_HOST_PROFILE_FILE $ENV{ARIEO_PACKAGE_BUILDENV_INSTALL_FOLDER}/conan/profiles/host/conan_host_profile.ubuntu.x86_64.txt
+    CONAN_HOST_PROFILE_FILE $ENV{ARIEO_PACKAGE_BUILDENV_SOURCE_FOLDER}/conan/profiles/host/conan_host_profile.ubuntu.x86_64.txt
     OUTPUT_FOLDER ${INSTALL_FOLDER}/conan/ubuntu/x86_64
 )
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     install_conan_file(
         CONAN_FILE ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.windows.txt
-        CONAN_HOST_PROFILE_FILE $ENV{ARIEO_PACKAGE_BUILDENV_INSTALL_FOLDER}/conan/profiles/host/conan_host_profile.windows.x86_64.txt
+        CONAN_HOST_PROFILE_FILE $ENV{ARIEO_PACKAGE_BUILDENV_SOURCE_FOLDER}/conan/profiles/host/conan_host_profile.windows.x86_64.txt
         OUTPUT_FOLDER ${INSTALL_FOLDER}/conan/windows/x86_64
     )
 endif()
@@ -129,7 +127,7 @@ endif()
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     install_conan_file(
         CONAN_FILE ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.macos.txt
-        CONAN_HOST_PROFILE_FILE $ENV{ARIEO_PACKAGE_BUILDENV_INSTALL_FOLDER}/conan/profiles/host/conan_host_profile.macos.arm64.txt
+        CONAN_HOST_PROFILE_FILE $ENV{ARIEO_PACKAGE_BUILDENV_SOURCE_FOLDER}/conan/profiles/host/conan_host_profile.macos.arm64.txt
         OUTPUT_FOLDER ${INSTALL_FOLDER}/conan/macos/arm64
     )
 endif()
