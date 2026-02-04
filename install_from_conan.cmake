@@ -1,5 +1,18 @@
 cmake_minimum_required(VERSION 3.20)
 
+# INSTALL_FOLDER must be set from command line or environment variable
+if(NOT DEFINED INSTALL_FOLDER)
+    # Try to get from environment variable
+    if(DEFINED ENV{INSTALL_FOLDER})
+        set(INSTALL_FOLDER "$ENV{INSTALL_FOLDER}")
+        message(STATUS "Using INSTALL_FOLDER from environment: ${INSTALL_FOLDER}")
+    else()
+        message(FATAL_ERROR "INSTALL_FOLDER is not defined. Please specify it with -DINSTALL_FOLDER=<path> or set INSTALL_FOLDER environment variable")
+    endif()
+else()
+    message(STATUS "Using INSTALL_FOLDER from command line: ${INSTALL_FOLDER}")
+endif()
+
 function(export_conan_recipes)
     set(multiValueArgs
         CONAN_RECIPE_FILES
@@ -11,6 +24,11 @@ function(export_conan_recipes)
         "${multiValueArgs}"
         ${ARGN}
     )
+
+    # print arguments and exit for debugging now
+    message(STATUS "CONAN_RECIPE_FILES: ${ARGUMENT_CONAN_RECIPE_FILES}")
+    return()
+
     foreach(RECIPE_FILE IN LISTS ARGUMENT_CONAN_RECIPE_FILES)
         get_filename_component(RECIPE_DIR ${RECIPE_FILE} DIRECTORY)
         execute_process(
@@ -46,6 +64,12 @@ function(install_conan_file)
         ${ARGN}
     )
 
+    # print arguments and exit for now
+    message(STATUS "CONAN_FILE: ${ARGUMENT_CONAN_FILE}")
+    message(STATUS "CONAN_HOST_PROFILE_FILE: ${ARGUMENT_CONAN_HOST_PROFILE_FILE}")
+    message(STATUS "OUTPUT_FOLDER: ${ARGUMENT_OUTPUT_FOLDER}")
+    return()
+
     execute_process(
         COMMAND conan
             install
@@ -78,34 +102,34 @@ export_conan_recipes(
 
 install_conan_file(
     CONAN_FILE ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.android.txt
-    CONAN_HOST_PROFILE_FILE $ENV{VS_WORKSPACE}/00_build_env/conan/profiles/host/conan_host_profile.android.armv8.txt
-    OUTPUT_FOLDER ${CMAKE_CURRENT_LIST_DIR}/conan/_generated/android/armv8
+    CONAN_HOST_PROFILE_FILE $ENV{INSTALL_FOLDER}/ArieoEngine-BuildEnv/conan/profiles/host/conan_host_profile.android.armv8.txt
+    OUTPUT_FOLDER ${INSTALL_FOLDER}/conan/_generated/android/armv8
 )
 
 install_conan_file(
     CONAN_FILE ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.raspberry.txt
-    CONAN_HOST_PROFILE_FILE $ENV{VS_WORKSPACE}/00_build_env/conan/profiles/host/conan_host_profile.raspberry.armv8.txt
-    OUTPUT_FOLDER ${CMAKE_CURRENT_LIST_DIR}/conan/_generated/raspberry/armv8
+    CONAN_HOST_PROFILE_FILE $ENV{INSTALL_FOLDER}/ArieoEngine-BuildEnv/conan/profiles/host/conan_host_profile.raspberry.armv8.txt
+    OUTPUT_FOLDER ${INSTALL_FOLDER}/conan/_generated/raspberry/armv8
 )
 
 install_conan_file(
     CONAN_FILE ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.ubuntu.txt
-    CONAN_HOST_PROFILE_FILE $ENV{VS_WORKSPACE}/00_build_env/conan/profiles/host/conan_host_profile.ubuntu.x86_64.txt
-    OUTPUT_FOLDER ${CMAKE_CURRENT_LIST_DIR}/conan/_generated/ubuntu/x86_64
+    CONAN_HOST_PROFILE_FILE $ENV{INSTALL_FOLDER}/ArieoEngine-BuildEnv/conan/profiles/host/conan_host_profile.ubuntu.x86_64.txt
+    OUTPUT_FOLDER ${INSTALL_FOLDER}/conan/_generated/ubuntu/x86_64
 )
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     install_conan_file(
         CONAN_FILE ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.windows.txt
-        CONAN_HOST_PROFILE_FILE $ENV{VS_WORKSPACE}/00_build_env/conan/profiles/host/conan_host_profile.windows.x86_64.txt
-        OUTPUT_FOLDER ${CMAKE_CURRENT_LIST_DIR}/conan/_generated/windows/x86_64
+        CONAN_HOST_PROFILE_FILE $ENV{INSTALL_FOLDER}/ArieoEngine-BuildEnv/conan/profiles/host/conan_host_profile.windows.x86_64.txt
+        OUTPUT_FOLDER ${INSTALL_FOLDER}/conan/_generated/windows/x86_64
     )
 endif()
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     install_conan_file(
         CONAN_FILE ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.macos.txt
-        CONAN_HOST_PROFILE_FILE $ENV{VS_WORKSPACE}/00_build_env/conan/profiles/host/conan_host_profile.macos.arm64.txt
-        OUTPUT_FOLDER ${CMAKE_CURRENT_LIST_DIR}/conan/_generated/macos/arm64
+        CONAN_HOST_PROFILE_FILE $ENV{INSTALL_FOLDER}/ArieoEngine-BuildEnv/conan/profiles/host/conan_host_profile.macos.arm64.txt
+        OUTPUT_FOLDER ${INSTALL_FOLDER}/conan/_generated/macos/arm64
     )
 endif()

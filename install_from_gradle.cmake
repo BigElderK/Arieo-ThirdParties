@@ -1,5 +1,18 @@
 cmake_minimum_required(VERSION 3.20)
 
+# INSTALL_FOLDER must be set from command line or environment variable
+if(NOT DEFINED INSTALL_FOLDER)
+    # Try to get from environment variable
+    if(DEFINED ENV{INSTALL_FOLDER})
+        set(INSTALL_FOLDER "$ENV{INSTALL_FOLDER}")
+        message(STATUS "Using INSTALL_FOLDER from environment: ${INSTALL_FOLDER}")
+    else()
+        message(FATAL_ERROR "INSTALL_FOLDER is not defined. Please specify it with -DINSTALL_FOLDER=<path> or set INSTALL_FOLDER environment variable")
+    endif()
+else()
+    message(STATUS "Using INSTALL_FOLDER from command line: ${INSTALL_FOLDER}")
+endif()
+
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     set(CMAKE_HOST_BATCH_SUFFIX .bat)
 else()
@@ -21,6 +34,13 @@ function(install_gradle)
         ""
         ${ARGN}
     )
+
+    # print arguments and exit for debugging now
+    message(STATUS "GRADLE_FILE: ${ARGUMENT_GRADLE_FILE}")
+    message(STATUS "GRADLE_TASK: ${ARGUMENT_GRADLE_TASK}")
+    message(STATUS "OUTPUT_FOLDER: ${ARGUMENT_OUTPUT_FOLDER}")
+    message(STATUS "WORKING_DIRECTORY: ${ARGUMENT_WORKING_DIRECTORY}")
+    return()
 
     # Check if gradlew.bat exists
     if(NOT EXISTS "${ARGUMENT_WORKING_DIRECTORY}/gradlew.bat")
@@ -63,13 +83,13 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
         GRADLE_FILE ${CMAKE_CURRENT_LIST_DIR}/gradle/gradlew.bat
         GRADLE_TASK generateCMakeConfigs
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gradle
-        OUTPUT_FOLDER ${CMAKE_CURRENT_LIST_DIR}/gradle/_generated
+        OUTPUT_FOLDER ${INSTALL_FOLDER}/gradle/_generated
     )
 else()
     install_gradle(
         GRADLE_FILE ${CMAKE_CURRENT_LIST_DIR}/gradle/gradlew
         GRADLE_TASK generateCMakeConfigs
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gradle
-        OUTPUT_FOLDER ${CMAKE_CURRENT_LIST_DIR}/gradle/_generated
+        OUTPUT_FOLDER ${INSTALL_FOLDER}/gradle/_generated
     )
 endif()
