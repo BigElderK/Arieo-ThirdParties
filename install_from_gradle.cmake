@@ -13,6 +13,26 @@ else()
     message(STATUS "Using INSTALL_FOLDER from command line: ${INSTALL_FOLDER}")
 endif()
 
+# Check if ARIEO_PACKAGE_BUILDENV_HOST_PRESET is defined
+if(NOT DEFINED ARIEO_PACKAGE_BUILDENV_HOST_PRESET)
+    # Try to get from environment variable
+    if(DEFINED ENV{ARIEO_PACKAGE_BUILDENV_HOST_PRESET})
+        set(ARIEO_PACKAGE_BUILDENV_HOST_PRESET "$ENV{ARIEO_PACKAGE_BUILDENV_HOST_PRESET}")
+        message(STATUS "Using ARIEO_PACKAGE_BUILDENV_HOST_PRESET from environment: ${ARIEO_PACKAGE_BUILDENV_HOST_PRESET}")
+    else()
+        message(FATAL_ERROR "ARIEO_PACKAGE_BUILDENV_HOST_PRESET is not defined. Please specify it with -DARIEO_PACKAGE_BUILDENV_HOST_PRESET=<preset> or set ARIEO_PACKAGE_BUILDENV_HOST_PRESET environment variable")
+    endif()
+else()
+    message(STATUS "Using ARIEO_PACKAGE_BUILDENV_HOST_PRESET from command line: ${ARIEO_PACKAGE_BUILDENV_HOST_PRESET}")
+endif()
+
+if(ARIEO_PACKAGE_BUILDENV_HOST_PRESET STREQUAL "android.armv8")
+    message(STATUS "Installing Gradle dependencies for preset: ${ARIEO_PACKAGE_BUILDENV_HOST_PRESET}")
+else()
+    message(STATUS "Skipping Gradle dependencies installation for preset: ${ARIEO_PACKAGE_BUILDENV_HOST_PRESET}")
+    return()
+endif()
+
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     set(CMAKE_HOST_BATCH_SUFFIX .bat)
 else()
