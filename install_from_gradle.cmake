@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 3.20)
 
-# OUTPUT_FOLDER must be set from command line or environment variable
-if(NOT DEFINED OUTPUT_FOLDER)
+# INSTALL_FOLDER must be set from command line or environment variable
+if(NOT DEFINED INSTALL_FOLDER)
     # Try to get from environment variable
-    if(DEFINED ENV{OUTPUT_FOLDER})
-        set(OUTPUT_FOLDER "$ENV{OUTPUT_FOLDER}")
-        message(STATUS "Using OUTPUT_FOLDER from environment: ${OUTPUT_FOLDER}")
+    if(DEFINED ENV{INSTALL_FOLDER})
+        set(INSTALL_FOLDER "$ENV{INSTALL_FOLDER}")
+        message(STATUS "Using INSTALL_FOLDER from environment: ${INSTALL_FOLDER}")
     else()
-        message(FATAL_ERROR "OUTPUT_FOLDER is not defined. Please specify it with -DOUTPUT_FOLDER=<path> or set OUTPUT_FOLDER environment variable")
+        message(FATAL_ERROR "INSTALL_FOLDER is not defined. Please specify it with -DINSTALL_FOLDER=<path> or set INSTALL_FOLDER environment variable")
     endif()
 else()
-    message(STATUS "Using OUTPUT_FOLDER from command line: ${OUTPUT_FOLDER}")
+    message(STATUS "Using INSTALL_FOLDER from command line: ${INSTALL_FOLDER}")
 endif()
 
 # Check if ARIEO_PACKAGE_BUILDENV_HOST_PRESET is defined
@@ -43,7 +43,7 @@ function(install_gradle)
     set(oneValueArgs
         GRADLE_FILE
         GRADLE_TASK
-        OUTPUT_FOLDER
+        INSTALL_FOLDER
         WORKING_DIRECTORY
     )
     
@@ -58,7 +58,7 @@ function(install_gradle)
     # print arguments and exit for debugging now
     message(STATUS "GRADLE_FILE: ${ARGUMENT_GRADLE_FILE}")
     message(STATUS "GRADLE_TASK: ${ARGUMENT_GRADLE_TASK}")
-    message(STATUS "OUTPUT_FOLDER: ${ARGUMENT_OUTPUT_FOLDER}")
+    message(STATUS "INSTALL_FOLDER: ${ARGUMENT_INSTALL_FOLDER}")
     message(STATUS "WORKING_DIRECTORY: ${ARGUMENT_WORKING_DIRECTORY}")
 
     # Check if gradlew.bat exists
@@ -88,9 +88,9 @@ function(install_gradle)
     # Copy all cmake files under build/cmake-configs to OUTPOUT folder
     set(SOURCE_FOLDER "${ARGUMENT_WORKING_DIRECTORY}/build/cmake-configs")
     if(EXISTS "${SOURCE_FOLDER}")
-        file(MAKE_DIRECTORY "${ARGUMENT_OUTPUT_FOLDER}")
-        file(COPY "${SOURCE_FOLDER}/" DESTINATION "${ARGUMENT_OUTPUT_FOLDER}")
-        message(STATUS "Copied cmake-configs to ${ARGUMENT_OUTPUT_FOLDER}")
+        file(MAKE_DIRECTORY "${ARGUMENT_INSTALL_FOLDER}")
+        file(COPY "${SOURCE_FOLDER}/" DESTINATION "${ARGUMENT_INSTALL_FOLDER}")
+        message(STATUS "Copied cmake-configs to ${ARGUMENT_INSTALL_FOLDER}")
     else()
         message(FATAL_ERROR "Source folder ${SOURCE_FOLDER} does not exist.")
     endif()
@@ -102,13 +102,13 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
         GRADLE_FILE ${CMAKE_CURRENT_LIST_DIR}/gradle/gradlew.bat
         GRADLE_TASK generateCMakeConfigs
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gradle
-        OUTPUT_FOLDER ${OUTPUT_FOLDER}/gradle/_generated
+        INSTALL_FOLDER ${INSTALL_FOLDER}/gradle/_generated
     )
 else()
     install_gradle(
         GRADLE_FILE ${CMAKE_CURRENT_LIST_DIR}/gradle/gradlew
         GRADLE_TASK generateCMakeConfigs
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gradle
-        OUTPUT_FOLDER ${OUTPUT_FOLDER}/gradle/_generated
+        INSTALL_FOLDER ${INSTALL_FOLDER}/gradle/_generated
     )
 endif()
