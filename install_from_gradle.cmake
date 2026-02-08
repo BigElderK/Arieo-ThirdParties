@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 
-if($ENV{ARIEO_PACKAGE_BUILD_SETTING_HOST_PRESET} STREQUAL "android.armv8")
-    message(STATUS "Installing Gradle dependencies for preset: $ENV{ARIEO_PACKAGE_BUILD_SETTING_HOST_PRESET}")
+if($ENV{ARIEO_PACKAGE_BUILD_HOST_PRESET} STREQUAL "android.armv8")
+    message(STATUS "Installing Gradle dependencies for preset: $ENV{ARIEO_PACKAGE_BUILD_HOST_PRESET}")
 else()
-    message(STATUS "Skipping Gradle dependencies installation for preset: $ENV{ARIEO_PACKAGE_BUILD_SETTING_HOST_PRESET}")
+    message(STATUS "Skipping Gradle dependencies installation for preset: $ENV{ARIEO_PACKAGE_BUILD_HOST_PRESET}")
     return()
 endif()
 
@@ -83,13 +83,13 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
         GRADLE_FILE ${CMAKE_CURRENT_LIST_DIR}/gradle/gradlew.bat
         GRADLE_TASK generateCMakeConfigs
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gradle
-        INSTALL_FOLDER $ENV{ARIEO_CUR_PACKAGE_INSTALL_FOLDER}/gradle/_generated
+        INSTALL_FOLDER $ENV{CUR_ARIEO_PACKAGE_INSTALL_FOLDER}/gradle/_generated
     )
 else()
     install_gradle(
         GRADLE_FILE ${CMAKE_CURRENT_LIST_DIR}/gradle/gradlew
         GRADLE_TASK generateCMakeConfigs
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gradle
-        INSTALL_FOLDER $ENV{ARIEO_CUR_PACKAGE_INSTALL_FOLDER}/gradle/_generated
+        INSTALL_FOLDER $ENV{CUR_ARIEO_PACKAGE_INSTALL_FOLDER}/gradle/_generated
     )
 endif()
