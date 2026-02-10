@@ -76,7 +76,7 @@ add_custom_command(
 )
 
 # This target will be built as part of ALL
-add_custom_target(arieo_third_parties ALL
+add_custom_target(arieo_third_parties_conan ALL
     DEPENDS ${CONAN_STAMP_FILE}
 )
 
@@ -116,14 +116,17 @@ if(${CMAKE_CONFIGURE_PRESET} STREQUAL "android.armv8")
             ${CMAKE_CURRENT_LIST_DIR}/gradle/dependencies.gradle.kts
         COMMAND ${CMAKE_COMMAND} -E echo "Running gradle task for ${CMAKE_CONFIGURE_PRESET}"
         COMMAND ${gradle_executable} generateCMakeConfigs
-            --update
-            --output-folder ${CMAKE_BINARY_DIR}/conan/${CMAKE_CONFIGURE_PRESET}
-            -pr:h=${conan_host_profile_file}
-            --build=missing # change to --build=* to force rebuild of all packages
         COMMAND ${CMAKE_COMMAND} -E touch ${GRADLE_STAMP_FILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gradle
         COMMENT "Running gradle task for ${CMAKE_CONFIGURE_PRESET}"
+        COMMAND_ERROR_IS_FATAL ANY
+        USES_TERMINAL
         VERBATIM
+    )
+
+    # This target will be built as part of ALL
+    add_custom_target(arieo_third_parties_gradle ALL
+        DEPENDS ${GRADLE_STAMP_FILE}
     )
 
     # Install gradle generated files directly from build output
