@@ -32,23 +32,24 @@ if (${CMAKE_CONFIGURE_PRESET} STREQUAL "ubuntu.x86_64")
 endif()
 
 # Add host profiles only for windows platform
-if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
-    if (${CMAKE_CONFIGURE_PRESET} STREQUAL "windows.x86_64")
+if (${CMAKE_CONFIGURE_PRESET} STREQUAL "windows.x86_64")
+    if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")    
         set(conan_file ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.windows.txt)
         set(conan_host_profile_file $ENV{ARIEO_BUILDENV_PACKAGE_INSTALL_FOLDER}/conan/host/windows.x86_64/conan_host_profile.windows.x86_64.txt)
+    else()
+        message(FATAL_ERROR "Windows platform only support Windows host system.")
     endif()
-else()
-    #message(FATAL_ERROR "Windows platform only support Windows host system.")
 endif()
 
 # Add host profiles only for darwin platform
-if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
-    if (${CMAKE_CONFIGURE_PRESET} STREQUAL "macos.arm64")
+
+if (${CMAKE_CONFIGURE_PRESET} STREQUAL "macos.arm64")
+    if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
         set(conan_file ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.macos.txt)
         set(conan_host_profile_file $ENV{ARIEO_BUILDENV_PACKAGE_INSTALL_FOLDER}/conan/host/macos.arm64/conan_host_profile.macos.arm64.txt)
+    else()
+        message(FATAL_ERROR "macOS platform only supports Darwin host system.")
     endif()
-else()
-    #message(FATAL_ERROR "macOS platform only supports Darwin host system.")
 endif()
 
 # Use a stamp file to track conan installation completion (preset-specific)
