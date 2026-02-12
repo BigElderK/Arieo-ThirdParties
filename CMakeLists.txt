@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
+cmake_policy(SET CMP0175 NEW)
 project(Arieo-ThirdParties)
 
 ##################################################################
@@ -62,22 +63,24 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET})
 add_custom_command(
     OUTPUT ${CONAN_EXPORT_STAMP_FILE}
     DEPENDS ${CMAKE_CURRENT_LIST_DIR}/export_conan_recipes.cmake
+    COMMAND ${CMAKE_COMMAND} -E rm -f ${CONAN_EXPORT_STAMP_FILE}
     COMMAND ${CMAKE_COMMAND} -E echo "Exporting local conan recipes"
     COMMAND ${CMAKE_COMMAND}
         -P ${CMAKE_CURRENT_LIST_DIR}/export_conan_recipes.cmake
     COMMAND ${CMAKE_COMMAND} -E touch ${CONAN_EXPORT_STAMP_FILE}
     COMMENT "Exporting local conan recipes"
-    COMMAND_ERROR_IS_FATAL ANY
     USES_TERMINAL
     VERBATIM
 )
 
+# Note: To force rebuild all packages, change --build=missing to --build=*
 add_custom_command(
     OUTPUT ${CONAN_STAMP_FILE}
     DEPENDS 
         ${conan_host_profile_file}
         ${conan_file}
         ${CONAN_EXPORT_STAMP_FILE}
+    COMMAND ${CMAKE_COMMAND} -E rm -f ${CONAN_STAMP_FILE}
     COMMAND ${CMAKE_COMMAND} -E echo "Running conan install for ${CMAKE_CONFIGURE_PRESET}"
     COMMAND conan
         install
@@ -85,10 +88,9 @@ add_custom_command(
         --update
         --output-folder ${CMAKE_BINARY_DIR}/conan/${CMAKE_CONFIGURE_PRESET}
         -pr:h=${conan_host_profile_file}
-        --build=missing # change to --build=* to force rebuild of all packages
+        --build=missing
     COMMAND ${CMAKE_COMMAND} -E touch ${CONAN_STAMP_FILE}
     COMMENT "Running conan install for ${CMAKE_CONFIGURE_PRESET}"
-    COMMAND_ERROR_IS_FATAL ANY
     USES_TERMINAL
     VERBATIM
 )
@@ -132,12 +134,12 @@ if(${CMAKE_CONFIGURE_PRESET} STREQUAL "android.armv8")
         DEPENDS 
             ${gradle_executable}
             ${CMAKE_CURRENT_LIST_DIR}/gradle/dependencies.gradle.kts
+        COMMAND ${CMAKE_COMMAND} -E rm -f ${GRADLE_STAMP_FILE}
         COMMAND ${CMAKE_COMMAND} -E echo "Running gradle task for ${CMAKE_CONFIGURE_PRESET}"
         COMMAND ${gradle_executable} generateCMakeConfigs
         COMMAND ${CMAKE_COMMAND} -E touch ${GRADLE_STAMP_FILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gradle
         COMMENT "Running gradle task for ${CMAKE_CONFIGURE_PRESET}"
-        COMMAND_ERROR_IS_FATAL ANY
         USES_TERMINAL
         VERBATIM
     )
