@@ -52,17 +52,32 @@ if (${CMAKE_CONFIGURE_PRESET} STREQUAL "macos.arm64")
     endif()
 endif()
 
-# Use a stamp file to track conan installation completion (preset-specific)
+# Use stamp files to track conan export/install completion (preset-specific)
+set(CONAN_EXPORT_STAMP_FILE ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET}/.conan_export_complete)
 set(CONAN_STAMP_FILE ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET}/.conan_install_complete)
 
 # Ensure the conan directory exists
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET})
 
 add_custom_command(
+    OUTPUT ${CONAN_EXPORT_STAMP_FILE}
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/export_conan_recipes.cmake
+    COMMAND ${CMAKE_COMMAND} -E echo "Exporting local conan recipes"
+    COMMAND ${CMAKE_COMMAND}
+        -P ${CMAKE_CURRENT_LIST_DIR}/export_conan_recipes.cmake
+    COMMAND ${CMAKE_COMMAND} -E touch ${CONAN_EXPORT_STAMP_FILE}
+    COMMENT "Exporting local conan recipes"
+    COMMAND_ERROR_IS_FATAL ANY
+    USES_TERMINAL
+    VERBATIM
+)
+
+add_custom_command(
     OUTPUT ${CONAN_STAMP_FILE}
     DEPENDS 
         ${conan_host_profile_file}
         ${conan_file}
+        ${CONAN_EXPORT_STAMP_FILE}
     COMMAND ${CMAKE_COMMAND} -E echo "Running conan install for ${CMAKE_CONFIGURE_PRESET}"
     COMMAND conan
         install
