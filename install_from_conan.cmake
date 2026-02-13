@@ -29,6 +29,7 @@ function(install_conan_file)
     endif()
     file(MAKE_DIRECTORY "${ARGUMENT_INSTALL_FOLDER}")
     
+    # change to --build=* to force rebuild of all packages
     execute_process(
         COMMAND conan
             install
@@ -36,7 +37,7 @@ function(install_conan_file)
             --update
             --output-folder ${ARGUMENT_INSTALL_FOLDER}
             -pr:h=${ARGUMENT_CONAN_HOST_PROFILE_FILE}
-            --build=missing # change to --build=* to force rebuild of all packages
+            --build=missing 
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
         RESULT_VARIABLE CONAN_RESULT
         ECHO_OUTPUT_VARIABLE
