@@ -9,6 +9,7 @@ yaml-cpp/0.8.0
 concurrentqueue/1.0.4
 
 wasmtime/40.0.1@arieo/dev
+wamr/2.4.4@arieo/dev
 boost/1.87.0@arieo/dev
 mimalloc/3.1.5@arieo/dev
 stb/master@arieo/dev

@@ -60,9 +60,16 @@ set(CONAN_STAMP_FILE ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET}/.c
 # Ensure the conan directory exists
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET})
 
+# Glob all recipe files so the export step re-runs when any recipe changes
+file(GLOB_RECURSE CONAN_RECIPE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/conan/recipes/*/conanfile.py
+)
+
 add_custom_command(
     OUTPUT ${CONAN_EXPORT_STAMP_FILE}
-    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/export_conan_recipes.cmake
+    DEPENDS 
+        ${CMAKE_CURRENT_LIST_DIR}/export_conan_recipes.cmake
+        ${CONAN_RECIPE_FILES}
     COMMAND ${CMAKE_COMMAND} -E rm -f ${CONAN_EXPORT_STAMP_FILE}
     COMMAND ${CMAKE_COMMAND} -E echo "Exporting local conan recipes"
     COMMAND ${CMAKE_COMMAND}
