@@ -82,7 +82,8 @@ add_custom_command(
         ${CONAN_EXPORT_STAMP_FILE}
     COMMAND ${CMAKE_COMMAND} -E rm -f ${CONAN_STAMP_FILE}
     COMMAND ${CMAKE_COMMAND} -E echo "Running conan install for ${CMAKE_CONFIGURE_PRESET}"
-    COMMAND conan
+    COMMAND ${CMAKE_COMMAND} -E env CMAKE_POLICY_VERSION_MINIMUM=3.5
+        conan
         install
         ${conan_file}
         --update
