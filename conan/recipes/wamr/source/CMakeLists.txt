@@ -27,6 +27,9 @@ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 # Set WAMR root directory relative to the cloned source
 set(WAMR_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/wamr)
 
+# Apply source patches for compiler compatibility (must be before building)
+include(${CMAKE_CURRENT_SOURCE_DIR}/patch/CMakeLists.txt)
+
 # Public headers shared by both variants
 set(WAMR_PUBLIC_HEADERS
     ${WAMR_ROOT_DIR}/core/iwasm/include/wasm_c_api.h
