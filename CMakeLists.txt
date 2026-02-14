@@ -61,9 +61,17 @@ set(CONAN_STAMP_FILE ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET}/.c
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET})
 
 # Glob all recipe files so the export step re-runs when any recipe changes
+# CONFIGURE_DEPENDS triggers reconfiguration when files are added/removed
 file(GLOB_RECURSE CONAN_RECIPE_FILES
+    CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_LIST_DIR}/conan/recipes/*/conanfile.py
 )
+
+# If FORCE_EXPORT_RECIPES is set, delete the stamp file to force re-export
+if(DEFINED ENV{FORCE_EXPORT_RECIPES} AND "$ENV{FORCE_EXPORT_RECIPES}")
+    message(STATUS "FORCE_EXPORT_RECIPES is set, forcing conan recipe export")
+    file(REMOVE ${CONAN_EXPORT_STAMP_FILE})
+endif()
 
 add_custom_command(
     OUTPUT ${CONAN_EXPORT_STAMP_FILE}
@@ -80,7 +88,15 @@ add_custom_command(
     VERBATIM
 )
 
-# Note: To force rebuild all packages, change --build=missing to --build=*
+# Use CONAN_BUILD env var if set, otherwise default to "missing"
+# Set CONAN_BUILD=* to force rebuild all packages
+if(DEFINED ENV{CONAN_BUILD})
+    set(CONAN_BUILD_POLICY "$ENV{CONAN_BUILD}")
+else()
+    set(CONAN_BUILD_POLICY "missing")
+endif()
+message(STATUS "Conan build policy: --build=${CONAN_BUILD_POLICY}")
+
 add_custom_command(
     OUTPUT ${CONAN_STAMP_FILE}
     DEPENDS 
@@ -96,7 +112,7 @@ add_custom_command(
         --update
         --output-folder ${CMAKE_BINARY_DIR}/conan/${CMAKE_CONFIGURE_PRESET}
         -pr:h=${conan_host_profile_file}
-        --build=missing
+        --build=${CONAN_BUILD_POLICY}
     COMMAND ${CMAKE_COMMAND} -E touch ${CONAN_STAMP_FILE}
     COMMENT "Running conan install for ${CMAKE_CONFIGURE_PRESET}"
     USES_TERMINAL
