@@ -2,7 +2,7 @@ category: 01_third_parties
 name: Arieo-ThirdParties
 description: Third party libraries for Areio projects
 
-output_folder: ${ARIEO_PACKAGE_OUTPUT_FOLDER}/${ARIEO_PACKAGE_CATEGORY}/${ARIEO_PACKAGE_NAME}
+build_folder: ${ARIEO_PACKAGE_BUILD_FOLDER}/${ARIEO_PACKAGE_CATEGORY}/${ARIEO_PACKAGE_NAME}
 install_folder: ${ARIEO_PACKAGE_INSTALL_FOLDER}/${ARIEO_PACKAGE_CATEGORY}/${ARIEO_PACKAGE_NAME}
 
 build_commands:
