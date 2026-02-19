@@ -3,6 +3,19 @@ cmake_policy(SET CMP0175 NEW)
 project(Arieo-ThirdParties)
 
 ##################################################################
+# Check if Environment ARIEO_PACKAGE_BUILD_OUTPUT_DIR is defined (set by install_build_env.py) and use it as the output directory for conan builds
+if(NOT DEFINED ENV{ARIEO_PACKAGE_BUILD_OUTPUT_DIR})
+    message(WARNING "Environment variable ARIEO_PACKAGE_BUILD_OUTPUT_DIR is not defined. Conan build output will be placed in ${CMAKE_BINARY_DIR}/conan_build_output")
+    set(ARIEO_PACKAGE_BUILD_OUTPUT_DIR ${CMAKE_BINARY_DIR}/conan_build_output)
+else()
+    set(ARIEO_PACKAGE_BUILD_OUTPUT_DIR $ENV{ARIEO_PACKAGE_BUILD_OUTPUT_DIR})
+    message(STATUS "Using ARIEO_PACKAGE_BUILD_OUTPUT_DIR: ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}")
+endif()
+
+# Ensure output directory exists (configure_file doesn't create parent directories)
+file(MAKE_DIRECTORY ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR})
+
+##################################################################
 # Conan dependencies installation
 set(conan_host_profile_file "")
 set(conan_file "")
@@ -54,11 +67,11 @@ if (${CMAKE_CONFIGURE_PRESET} STREQUAL "macos.arm64")
 endif()
 
 # Use stamp files to track conan export/install completion (preset-specific)
-set(CONAN_EXPORT_STAMP_FILE ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET}/.conan_export_complete)
-set(CONAN_STAMP_FILE ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET}/.conan_install_complete)
+set(CONAN_EXPORT_STAMP_FILE ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET}/.conan_export_complete)
+set(CONAN_STAMP_FILE ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET}/.conan_install_complete)
 
 # Ensure the conan directory exists
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET})
+file(MAKE_DIRECTORY ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET})
 
 # Glob all recipe files so the export step re-runs when any recipe changes
 # CONFIGURE_DEPENDS triggers reconfiguration when files are added/removed
@@ -110,7 +123,7 @@ add_custom_command(
         install
         ${conan_file}
         --update
-        --output-folder ${CMAKE_BINARY_DIR}/conan/${CMAKE_CONFIGURE_PRESET}
+        --output-folder ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/conan/${CMAKE_CONFIGURE_PRESET}
         -pr:h=${conan_host_profile_file}
         --build=${CONAN_BUILD_POLICY}
     COMMAND ${CMAKE_COMMAND} -E touch ${CONAN_STAMP_FILE}
@@ -125,7 +138,7 @@ add_custom_target(arieo_third_parties_conan ALL
 )
 
 # Install conan generated files
-install(DIRECTORY ${CMAKE_BINARY_DIR}/conan/${CMAKE_CONFIGURE_PRESET}/
+install(DIRECTORY ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/conan/${CMAKE_CONFIGURE_PRESET}/
     DESTINATION conan/${CMAKE_CONFIGURE_PRESET}
 )
 
@@ -147,10 +160,10 @@ if(${CMAKE_CONFIGURE_PRESET} STREQUAL "android.armv8")
     endif()
 
     # Use a stamp file to track gradle installation completion (preset-specific)
-    set(GRADLE_STAMP_FILE ${CMAKE_BINARY_DIR}/gradle/host/${CMAKE_CONFIGURE_PRESET}/.gradle_install_complete)
+    set(GRADLE_STAMP_FILE ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/gradle/host/${CMAKE_CONFIGURE_PRESET}/.gradle_install_complete)
 
     # Ensure the gradle directory exists
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/gradle/host/${CMAKE_CONFIGURE_PRESET})
+    file(MAKE_DIRECTORY ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/gradle/host/${CMAKE_CONFIGURE_PRESET})
 
     # Run gradle task
     add_custom_command(
@@ -174,7 +187,7 @@ if(${CMAKE_CONFIGURE_PRESET} STREQUAL "android.armv8")
     )
 
     # Install gradle generated files directly from build output
-    install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gradle/build/cmake-configs/android/arm64-v8a/cmake/
+    install(DIRECTORY ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/gradle/host/${CMAKE_CONFIGURE_PRESET}/
         DESTINATION gradle/${CMAKE_CONFIGURE_PRESET}
     )
 else()
