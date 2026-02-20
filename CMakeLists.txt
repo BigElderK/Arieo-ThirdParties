@@ -22,52 +22,53 @@ set(CONAN_RECIPE_FILES
 )
 
 ##################################################################
-# Check if Environment ARIEO_PACKAGES_BUILD_OUTPUT_DIR is defined (set by install_build_env.py) and use it as the output directory for conan builds
-if(NOT DEFINED ENV{ARIEO_PACKAGES_BUILD_OUTPUT_DIR})
-    message(WARNING "Environment variable ARIEO_PACKAGES_BUILD_OUTPUT_DIR is not defined. Conan build output will be placed in ${CMAKE_BINARY_DIR}/conan_build_output")
-    set(ARIEO_PACKAGES_BUILD_OUTPUT_DIR ${CMAKE_BINARY_DIR}/conan_build_output)
+# Check if Environment ARIEO_THIRDPARTIES_PACKAGE_OUTPUT_FOLDER is defined (set by install_py) and use it as the output directory for conan builds
+if(NOT DEFINED ENV{ARIEO_THIRDPARTIES_PACKAGE_OUTPUT_FOLDER})
+    message(STATUS "Environment variable ARIEO_THIRDPARTIES_PACKAGE_OUTPUT_FOLDER is not defined. Conan build output will be placed in ${CMAKE_BINARY_DIR}/conan_build_output")
+    set(ARIEO_THIRDPARTIES_PACKAGE_OUTPUT_FOLDER ${CMAKE_BINARY_DIR})
 else()
-    set(ARIEO_PACKAGES_BUILD_OUTPUT_DIR $ENV{ARIEO_PACKAGES_BUILD_OUTPUT_DIR})
-    message(STATUS "Using ARIEO_PACKAGES_BUILD_OUTPUT_DIR: ${ARIEO_PACKAGES_BUILD_OUTPUT_DIR}")
+    message(STATUS "Using ARIEO_THIRDPARTIES_PACKAGE_OUTPUT_FOLDER: $ENV{ARIEO_THIRDPARTIES_PACKAGE_OUTPUT_FOLDER}")
+    set(ARIEO_THIRDPARTIES_PACKAGE_OUTPUT_FOLDER $ENV{ARIEO_THIRDPARTIES_PACKAGE_OUTPUT_FOLDER})
 endif()
 
-set(ARIEO_CUR_PACKAGE_BUILD_OUTPUT_DIR ${ARIEO_PACKAGES_BUILD_OUTPUT_DIR}//${ARIEO_PACKAGE_NAME})
+
+set(ARIEO_CUR_PACKAGE_BUILD_OUTPUT_DIR ${ARIEO_THIRDPARTIES_PACKAGE_OUTPUT_FOLDER})
 
 # Ensure output directory exists (configure_file doesn't create parent directories)
 file(MAKE_DIRECTORY ${ARIEO_CUR_PACKAGE_BUILD_OUTPUT_DIR})
 
 ##################################################################
 # Conan dependencies installation
-# CMAKE_CONFIGURE_PRESET is set by install_config.cmake included before this script
-# Check if CMAKE_CONFIGURE_PRESET is defined
-if(NOT DEFINED CMAKE_CONFIGURE_PRESET)
-    message(FATAL_ERROR "Variable CMAKE_CONFIGURE_PRESET is not defined. install_config.cmake should be included first.")
+# ARIEO_BUILD_CONFIGURE_PRESET is set by install_config.cmake included before this script
+# Check if ARIEO_BUILD_CONFIGURE_PRESET is defined
+if(NOT DEFINED ARIEO_BUILD_CONFIGURE_PRESET)
+    message(FATAL_ERROR "Variable ARIEO_BUILD_CONFIGURE_PRESET is not defined.")
 endif()
 
-if(NOT DEFINED ENV{ARIEO_PACKAGES_BUILD_ENVIRONMENT_OUTPUT_DIR})
-    message(FATAL_ERROR "Variable ARIEO_PACKAGES_BUILD_ENVIRONMENT_OUTPUT_DIR is not defined. It should be passed from the superbuild.")
+if(NOT DEFINED ENV{ARIEO_BUILD_ENV_PACKAGES_OUTPUT_DIR})
+    message(FATAL_ERROR "Variable ARIEO_BUILD_ENV_PACKAGES_OUTPUT_DIR is not defined. It should be passed from the superbuild.")
 endif()
 
-if (${CMAKE_CONFIGURE_PRESET} STREQUAL "third_parties.android.armv8")
+if (${ARIEO_BUILD_CONFIGURE_PRESET} STREQUAL "android.armv8")
     set(conan_file ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.android.txt)
-    set(conan_host_profile_file $ENV{ARIEO_PACKAGES_BUILD_ENVIRONMENT_OUTPUT_DIR}/conan/host/devenv.android.armv8/conan_host_profile.android.armv8.txt)
+    set(conan_host_profile_file $ENV{ARIEO_BUILD_ENV_PACKAGES_OUTPUT_DIR}/conan/host/android.armv8/conan_host_profile.android.armv8.txt)
 endif()
 
-if (${CMAKE_CONFIGURE_PRESET} STREQUAL "third_parties.raspberry.armv8")
+if (${ARIEO_BUILD_CONFIGURE_PRESET} STREQUAL "raspberry.armv8")
     set(conan_file ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.raspberry.txt)
-    set(conan_host_profile_file $ENV{ARIEO_PACKAGES_BUILD_ENVIRONMENT_OUTPUT_DIR}/conan/host/devenv.raspberry.armv8/conan_host_profile.raspberry.armv8.txt)
+    set(conan_host_profile_file $ENV{ARIEO_BUILD_ENV_PACKAGES_OUTPUT_DIR}/conan/host/raspberry.armv8/conan_host_profile.raspberry.armv8.txt)
 endif()
 
-if (${CMAKE_CONFIGURE_PRESET} STREQUAL "third_parties.ubuntu.x86_64")
+if (${ARIEO_BUILD_CONFIGURE_PRESET} STREQUAL "ubuntu.x86_64")
     set(conan_file ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.ubuntu.txt)
-    set(conan_host_profile_file $ENV{ARIEO_PACKAGES_BUILD_ENVIRONMENT_OUTPUT_DIR}/conan/host/devenv.ubuntu.x86_64/conan_host_profile.ubuntu.x86_64.txt)
+    set(conan_host_profile_file $ENV{ARIEO_BUILD_ENV_PACKAGES_OUTPUT_DIR}/conan/host/ubuntu.x86_64/conan_host_profile.ubuntu.x86_64.txt)
 endif()
 
 # Add host profiles only for windows platform
-if (${CMAKE_CONFIGURE_PRESET} STREQUAL "third_parties.windows.x86_64")
+if (${ARIEO_BUILD_CONFIGURE_PRESET} STREQUAL "windows.x86_64")
     if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")    
         set(conan_file ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.windows.txt)
-        set(conan_host_profile_file $ENV{ARIEO_PACKAGES_BUILD_ENVIRONMENT_OUTPUT_DIR}/conan/host/devenv.windows.x86_64/conan_host_profile.windows.x86_64.txt)
+        set(conan_host_profile_file $ENV{ARIEO_BUILD_ENV_PACKAGES_OUTPUT_DIR}/conan/host/windows.x86_64/conan_host_profile.windows.x86_64.txt)
     else()
         message(WARNING "Windows platform only support Windows host system.")
     endif()
@@ -75,27 +76,17 @@ endif()
 
 # Add host profiles only for darwin platform
 
-if (${CMAKE_CONFIGURE_PRESET} STREQUAL "third_parties.macos.arm64")
+if (${ARIEO_BUILD_CONFIGURE_PRESET} STREQUAL "macos.arm64")
     if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
         set(conan_file ${CMAKE_CURRENT_LIST_DIR}/conan/conanfile.macos.txt)
-        set(conan_host_profile_file $ENV{ARIEO_PACKAGES_BUILD_ENVIRONMENT_OUTPUT_DIR}/conan/host/devenv.macos.arm64/conan_host_profile.macos.arm64.txt)
+        set(conan_host_profile_file $ENV{ARIEO_BUILD_ENV_PACKAGES_OUTPUT_DIR}/conan/host/macos.arm64/conan_host_profile.macos.arm64.txt)
     else()
         message(WARNING "macOS platform only supports Darwin host system.")
     endif()
 endif()
 
-
-# Use stamp files to track conan export/install completion (preset-specific)
-
-set(CONAN_INSTALL_STAMP_FILE ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET}/.conan_install_complete)
-
-# Ensure the conan directory exists
-file(MAKE_DIRECTORY ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET})
-
-
-
 if(DEFINED CONAN_RECIPE_FILES)
-    set(CONAN_RECIPES_EXPORT_STAMP_FILE ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/conan/host/${CMAKE_CONFIGURE_PRESET}/.conan_recipes_export_complete)
+    set(CONAN_RECIPES_EXPORT_STAMP_FILE ${ARIEO_CUR_PACKAGE_BUILD_OUTPUT_DIR}/conan/${ARIEO_BUILD_CONFIGURE_PRESET}/.conan_recipes_export_complete)
 
     # If FORCE_EXPORT_RECIPES is set, delete the stamp file to force re-export
     if(DEFINED ENV{FORCE_EXPORT_RECIPES} AND "$ENV{FORCE_EXPORT_RECIPES}")
@@ -128,6 +119,9 @@ endif()
 
 
 if(DEFINED conan_host_profile_file AND DEFINED conan_file)
+    # Use stamp files to track conan export/install completion (preset-specific)
+    set(CONAN_INSTALL_STAMP_FILE ${ARIEO_CUR_PACKAGE_BUILD_OUTPUT_DIR}/conan/${ARIEO_BUILD_CONFIGURE_PRESET}/.conan_install_complete)
+
     # Use CONAN_BUILD env var if set, otherwise default to "missing"
     # Set CONAN_BUILD=* to force rebuild all packages
     if(DEFINED ENV{CONAN_BUILD})
@@ -144,17 +138,17 @@ if(DEFINED conan_host_profile_file AND DEFINED conan_file)
             ${conan_file}
             ${CONAN_RECIPES_EXPORT_STAMP_FILE}
         COMMAND ${CMAKE_COMMAND} -E rm -f ${CONAN_INSTALL_STAMP_FILE}
-        COMMAND ${CMAKE_COMMAND} -E echo "Running conan install for ${CMAKE_CONFIGURE_PRESET}"
+        COMMAND ${CMAKE_COMMAND} -E echo "Running conan install for ${ARIEO_BUILD_CONFIGURE_PRESET}"
         COMMAND ${CMAKE_COMMAND} -E env CMAKE_POLICY_VERSION_MINIMUM=3.5
             conan
             install
             ${conan_file}
             --update
-            --output-folder ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/conan/${CMAKE_CONFIGURE_PRESET}
+            --output-folder ${ARIEO_CUR_PACKAGE_BUILD_OUTPUT_DIR}/conan/${ARIEO_BUILD_CONFIGURE_PRESET}
             -pr:h=${conan_host_profile_file}
             --build=${CONAN_BUILD_POLICY}
         COMMAND ${CMAKE_COMMAND} -E touch ${CONAN_INSTALL_STAMP_FILE}
-        COMMENT "Running conan install for ${CMAKE_CONFIGURE_PRESET}"
+        COMMENT "Running conan install for ${ARIEO_BUILD_CONFIGURE_PRESET}"
         USES_TERMINAL
         VERBATIM
     )
@@ -164,7 +158,7 @@ if(DEFINED conan_host_profile_file AND DEFINED conan_file)
         DEPENDS ${CONAN_INSTALL_STAMP_FILE}
     )
 else()
-    message(WARNING "No matching preset found for ${CMAKE_CONFIGURE_PRESET}. Conan install will be skipped.")
+    message(WARNING "No matching preset found for ${ARIEO_BUILD_CONFIGURE_PRESET}. Conan install will be skipped.")
     # This target will be built as part of ALL
     add_custom_target(arieo_third_parties_conan ALL
     )
@@ -174,8 +168,8 @@ endif()
 
 ##################################################################
 # Gradle dependencies installation
-if(${CMAKE_CONFIGURE_PRESET} STREQUAL "android.armv8")
-    message(STATUS "Installing Gradle dependencies for preset: ${CMAKE_CONFIGURE_PRESET}")
+if(${ARIEO_BUILD_CONFIGURE_PRESET} STREQUAL "android.armv8")
+    message(STATUS "Installing Gradle dependencies for preset: ${ARIEO_BUILD_CONFIGURE_PRESET}")
     set(gradle_executable "")
 
     if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
@@ -190,10 +184,10 @@ if(${CMAKE_CONFIGURE_PRESET} STREQUAL "android.armv8")
     endif()
 
     # Use a stamp file to track gradle installation completion (preset-specific)
-    set(GRADLE_STAMP_FILE ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/gradle/host/${CMAKE_CONFIGURE_PRESET}/.gradle_install_complete)
+    set(GRADLE_STAMP_FILE ${ARIEO_CUR_PACKAGE_BUILD_OUTPUT_DIR}/gradle/${ARIEO_BUILD_CONFIGURE_PRESET}/.gradle_install_complete)
 
     # Ensure the gradle directory exists
-    file(MAKE_DIRECTORY ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/gradle/host/${CMAKE_CONFIGURE_PRESET})
+    file(MAKE_DIRECTORY ${ARIEO_CUR_PACKAGE_BUILD_OUTPUT_DIR}/gradle/${ARIEO_BUILD_CONFIGURE_PRESET})
 
     # Run gradle task
     add_custom_command(
@@ -202,11 +196,14 @@ if(${CMAKE_CONFIGURE_PRESET} STREQUAL "android.armv8")
             ${gradle_executable}
             ${CMAKE_CURRENT_LIST_DIR}/gradle/dependencies.gradle.kts
         COMMAND ${CMAKE_COMMAND} -E rm -f ${GRADLE_STAMP_FILE}
-        COMMAND ${CMAKE_COMMAND} -E echo "Running gradle task for ${CMAKE_CONFIGURE_PRESET}"
+        COMMAND ${CMAKE_COMMAND} -E echo "Running gradle task for ${ARIEO_BUILD_CONFIGURE_PRESET}"
         COMMAND ${gradle_executable} generateCMakeConfigs
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_LIST_DIR}/gradle/build/cmake-configs/android/arm64-v8a/cmake
+            ${ARIEO_CUR_PACKAGE_BUILD_OUTPUT_DIR}/gradle/${ARIEO_BUILD_CONFIGURE_PRESET}
         COMMAND ${CMAKE_COMMAND} -E touch ${GRADLE_STAMP_FILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/gradle
-        COMMENT "Running gradle task for ${CMAKE_CONFIGURE_PRESET}"
+        COMMENT "Running gradle task for ${ARIEO_BUILD_CONFIGURE_PRESET}"
         USES_TERMINAL
         VERBATIM
     )
@@ -215,13 +212,8 @@ if(${CMAKE_CONFIGURE_PRESET} STREQUAL "android.armv8")
     add_custom_target(arieo_third_parties_gradle ALL
         DEPENDS ${GRADLE_STAMP_FILE}
     )
-
-    # Install gradle generated files directly from build output
-    install(DIRECTORY ${ARIEO_PACKAGE_BUILD_OUTPUT_DIR}/gradle/host/${CMAKE_CONFIGURE_PRESET}/
-        DESTINATION gradle/${CMAKE_CONFIGURE_PRESET}
-    )
 else()
-    message(STATUS "Skipping Gradle dependencies installation for preset: ${CMAKE_CONFIGURE_PRESET}")
+    message(STATUS "Skipping Gradle dependencies installation for preset: ${ARIEO_BUILD_CONFIGURE_PRESET}")
     add_custom_target(arieo_third_parties_gradle)
 endif()
 
