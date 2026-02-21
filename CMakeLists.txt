@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
 cmake_policy(SET CMP0175 NEW)
 
-set(ARIEO_PACKAGE_CATEGORY "01_third_parties" CACHE INTERNAL "Category for Arieo packages")
-set(ARIEO_PACKAGE_NAME "Arieo-ThirdParties" CACHE INTERNAL "Name of the Arieo package")
-add_custom_target(${ARIEO_PACKAGE_NAME}
-    DEPENDS 
+include($ENV{ARIEO_BUILD_ENV_PACKAGES_OUTPUT_DIR}/cmake/build_environment.cmake)
+
+ArieoPackage(
+    Arieo-ThirdParties
+    CATEGORY 01_third_parties
+    COMPONENTS
         arieo_third_parties_conan_recipes
         arieo_third_parties_conan
         arieo_third_parties_gradle
