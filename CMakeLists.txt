@@ -198,7 +198,7 @@ if(${ARIEO_BUILD_CONFIGURE_PRESET} STREQUAL "android.armv8")
             ${CMAKE_CURRENT_LIST_DIR}/gradle/dependencies.gradle.kts
         COMMAND ${CMAKE_COMMAND} -E rm -f ${GRADLE_STAMP_FILE}
         COMMAND ${CMAKE_COMMAND} -E echo "Running gradle task for ${ARIEO_BUILD_CONFIGURE_PRESET}"
-        COMMAND ${gradle_executable} generateCMakeConfigs
+        COMMAND ${gradle_executable} --no-daemon generateCMakeConfigs
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_LIST_DIR}/gradle/build/cmake-configs/android/arm64-v8a/cmake
             ${ARIEO_CUR_PACKAGE_BUILD_OUTPUT_DIR}/gradle/${ARIEO_BUILD_CONFIGURE_PRESET}
